@@ -1,9 +1,64 @@
 package main
 
+import (
+	"database/sql"
+	"os"
+	"path/filepath"
+	"time"
+
+	_ "github.com/mattn/go-sqlite3"
+)
+
+const DB_FILE_NAME = "logbook.db"
+
 type Logbook struct {
-	name string
+	db *sql.DB
 }
 
-func LoadDiary(path string) (*Logbook, error) {
-	return &Logbook{"test"}, nil
+func LoadLogbook(path string) (*Logbook, error) {
+	var db *sql.DB
+	var err error
+
+	err = os.MkdirAll(path, 0755)
+	if err != nil {
+		return nil, err
+	}
+
+	db, err = sql.Open("sqlite3", filepath.Join(path, DB_FILE_NAME))
+	if err != nil {
+		return nil, err
+	}
+	return &Logbook{db}, nil
+}
+
+func (self *Logbook) Keep(timeStr string, workpath string) error {
+	var err error
+
+	var text *Text
+	text, err = InputText(workpath)
+	if err != nil {
+		return err
+	}
+
+	var date time.Time
+	date, err = time.Parse(DATE_FORMAT, timeStr)
+	if err != nil {
+		return err
+	}
+
+	_, err = CreateEntry(self.db, text, &date)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *Logbook) Entry(time string) error {
+
+	return nil
+}
+
+func (self *Logbook) Close() {
+	defer self.db.Close()
 }

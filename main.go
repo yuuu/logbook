@@ -5,12 +5,17 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/user"
+	"path/filepath"
 	"time"
 
 	"github.com/google/subcommands"
 )
 
+var version = "0.0.1"
+
 type keepCmd struct {
+	date string
 }
 
 func (*keepCmd) Name() string     { return "keep" }
@@ -21,12 +26,13 @@ func (*keepCmd) Usage() string {
 `
 }
 func (p *keepCmd) SetFlags(f *flag.FlagSet) {
+	f.StringVar(&p.date, "date", time.Now().Format(DATE_FORMAT), "date of entry")
 }
-func (p *keepCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
-	for _, arg := range f.Args() {
-		fmt.Printf("%s ", arg)
-	}
-	fmt.Println()
+func (p *keepCmd) Execute(_ context.Context, f *flag.FlagSet, argv ...interface{}) subcommands.ExitStatus {
+	var lgbk = (argv[0]).(*Logbook)
+
+	lgbk.Keep(p.date, argv[1].(string))
+
 	return subcommands.ExitSuccess
 }
 
@@ -42,23 +48,44 @@ func (*entryCmd) Usage() string {
 `
 }
 func (p *entryCmd) SetFlags(f *flag.FlagSet) {
-	f.StringVar(&p.date, "date", time.Now().Format("2006-01-02"), "date of entry")
+	f.StringVar(&p.date, "date", time.Now().Format(DATE_FORMAT), "date of entry")
 }
 func (p *entryCmd) Execute(_ context.Context, f *flag.FlagSet, argv ...interface{}) subcommands.ExitStatus {
 	var lgbk = (argv[0]).(*Logbook)
 
-	t, err := time.Parse("2006-01-02", p.date)
-	if err != nil {
-		fmt.Println(p.date + " is invalud date.")
-	} else {
-		fmt.Println(t.Format(lgbk.name + ": " + "2006-01-02"))
-	}
+	lgbk.Entry(p.date)
 
 	return subcommands.ExitSuccess
 }
 
+func getWorkpath() string {
+	var err error
+
+	var u *user.User
+	u, err = user.Current()
+	if err != nil {
+		return ""
+	}
+
+	return filepath.Join(u.HomeDir, ".logbook")
+}
+
 func main() {
-	lgbk, _ := LoadDiary("")
+	var err error
+
+	var isShowVersion bool
+	flag.BoolVar(&isShowVersion, "v", false, "show version")
+	flag.BoolVar(&isShowVersion, "version", false, "show version")
+
+	var workpath string
+	workpath = getWorkpath()
+
+	var lgbk *Logbook
+	lgbk, err = LoadLogbook(workpath)
+	if err != nil {
+		fmt.Println("failed LoadLogbook() [err = ", err.Error(), "]")
+		return
+	}
 
 	subcommands.Register(subcommands.HelpCommand(), "")
 	subcommands.Register(subcommands.FlagsCommand(), "")
@@ -67,6 +94,10 @@ func main() {
 	subcommands.Register(&entryCmd{}, "")
 
 	flag.Parse()
+	if isShowVersion {
+		fmt.Println("version:", version)
+		return
+	}
 	ctx := context.Background()
-	os.Exit(int(subcommands.Execute(ctx, lgbk)))
+	os.Exit(int(subcommands.Execute(ctx, lgbk, workpath)))
 }
