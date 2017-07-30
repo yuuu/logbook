@@ -22,7 +22,8 @@ $ logbook keep
 (You can input text of entry.)
 ```
 
-### Show an entry
+## ToDo
 
-ToDo
-
+* Show entries.
+* Choose other editor for input text.
+* UnitTest.
