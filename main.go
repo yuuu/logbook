@@ -30,8 +30,12 @@ func (p *keepCmd) SetFlags(f *flag.FlagSet) {
 }
 func (p *keepCmd) Execute(_ context.Context, f *flag.FlagSet, argv ...interface{}) subcommands.ExitStatus {
 	var lgbk = (argv[0]).(*Logbook)
+	var err error
 
-	lgbk.Keep(p.date, argv[1].(string))
+	err = lgbk.Keep(p.date, argv[1].(string))
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 
 	return subcommands.ExitSuccess
 }
@@ -48,12 +52,16 @@ func (*entryCmd) Usage() string {
 `
 }
 func (p *entryCmd) SetFlags(f *flag.FlagSet) {
-	f.StringVar(&p.date, "date", time.Now().Format(DATE_FORMAT), "date of entry")
+	f.StringVar(&p.date, "date", "", "date of entry")
 }
 func (p *entryCmd) Execute(_ context.Context, f *flag.FlagSet, argv ...interface{}) subcommands.ExitStatus {
 	var lgbk = (argv[0]).(*Logbook)
+	var err error
 
-	lgbk.Entry(p.date)
+	err = lgbk.Entry(p.date)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 
 	return subcommands.ExitSuccess
 }

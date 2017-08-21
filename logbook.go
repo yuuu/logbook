@@ -54,7 +54,34 @@ func (self *Logbook) Keep(timeStr string, workpath string) error {
 	return nil
 }
 
-func (self *Logbook) Entry(time string) error {
+func (self *Logbook) Entry(timeStr string) error {
+	var err error
+
+	if timeStr == "" {
+		var entries []*Entry
+		entries, err = SearchMostRecentEntry(self.db, 100, 0)
+		if err != nil {
+			return err
+		}
+		for _, entry := range entries {
+			entry.Print()
+		}
+
+	} else {
+		var date time.Time
+		date, err = time.Parse(DATE_FORMAT, timeStr)
+		if err != nil {
+			return err
+		}
+
+		var entry *Entry
+		entry, err = SearchEntryWithDate(self.db, &date)
+		if err != nil {
+			return err
+		}
+
+		entry.Print()
+	}
 
 	return nil
 }

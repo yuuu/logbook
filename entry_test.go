@@ -37,18 +37,5 @@ func Test_CreateEntry(t *testing.T) {
 		t.Fatal("entry.date is incorrect. (", entry.text.Text(), entry.date, entry.id, ")")
 	}
 
-	/*
-		stmt, err = db.Prepare("INSERT INTO entry (text, date) VALUES ('abc', 2017-7-24)")
-		if err != nil {
-			t.Fatal("db.Prepare is failed. (", err.Error(), ")")
-		}
-
-		nowTime = time.Now()
-		entry, err = CreateEntry(db, stmt, &nowTime)
-		if err != nil {
-			t.Fatal("CreateEntry is failed.")
-		}
-	*/
-
 	entry.Edit()
 }
