@@ -2,7 +2,10 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
+	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"time"
 
@@ -56,32 +59,49 @@ func (self *Logbook) Keep(timeStr string, workpath string) error {
 
 func (self *Logbook) Entry(timeStr string) error {
 	var err error
+	var cmd *exec.Cmd
+	var stdin io.WriteCloser
+
+	cmd = exec.Command("less")
+	cmd.Stdout = os.Stdout
+	stdin, err = cmd.StdinPipe()
+	if err != nil {
+		fmt.Println(err.Error())
+		return err
+	}
 
 	if timeStr == "" {
 		var entries []*Entry
 		entries, err = SearchMostRecentEntry(self.db, 100, 0)
 		if err != nil {
+			fmt.Println(err.Error())
 			return err
 		}
 		for _, entry := range entries {
-			entry.Print()
+			entry.Print(stdin)
 		}
 
 	} else {
 		var date time.Time
 		date, err = time.Parse(DATE_FORMAT, timeStr)
 		if err != nil {
+			fmt.Println(err.Error())
 			return err
 		}
 
 		var entry *Entry
 		entry, err = SearchEntryWithDate(self.db, &date)
 		if err != nil {
+			fmt.Println(err.Error())
 			return err
 		}
 
-		entry.Print()
+		stdin.Close()
+		entry.Print(stdin)
 	}
+
+	stdin.Close()
+	cmd.Run()
 
 	return nil
 }

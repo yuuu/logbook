@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"time"
 )
 
@@ -152,11 +153,9 @@ func (self *Entry) Delete() error {
 	return nil
 }
 
-func (self *Entry) Print() {
-	fmt.Println("================================")
-	fmt.Println("DATE: ", self.date.Format(DATE_FORMAT))
-	fmt.Println("--------------------------------")
-	fmt.Println(self.text.Text())
-	fmt.Println("================================")
-	fmt.Println("")
+func (self *Entry) Print(writer io.Writer) {
+	fmt.Fprintln(writer, "================================")
+	fmt.Fprintln(writer, ("DATE: " + self.date.Format(DATE_FORMAT)))
+	fmt.Fprintln(writer, self.text.Text())
+	fmt.Fprintln(writer, "")
 }

@@ -21,7 +21,8 @@ func editSub() (string, error) {
 
 	err = os.Remove(TEXT_TMPORARY_FILE_PATH)
 	if err != nil {
-		return "", errors.New("os.Remove() Error.")
+		// already removed.
+		err = nil
 	}
 
 	var entryEditor *editor.Editor
