@@ -44,11 +44,7 @@ func (self *Logbook) Keep(timeStr string, workpath string) error {
 	}
 
 	var date time.Time
-	date, err = time.Parse(DATE_FORMAT, timeStr)
-	if err != nil {
-		return err
-	}
-
+	date = time.Now()
 	_, err = CreateEntry(self.db, text, &date)
 	if err != nil {
 		return err
