@@ -55,10 +55,9 @@ func (self *Logbook) Keep(timeStr string, workpath string) error {
 
 func (self *Logbook) Entry(timeStr string) error {
 	var err error
-	var cmd *exec.Cmd
 	var stdin io.WriteCloser
 
-	cmd = exec.Command("less")
+	cmd := exec.Command("less", "-R")
 	cmd.Stdout = os.Stdout
 	stdin, err = cmd.StdinPipe()
 	if err != nil {
@@ -70,7 +69,6 @@ func (self *Logbook) Entry(timeStr string) error {
 		var entries []*Entry
 		entries, err = SearchMostRecentEntry(self.db, 100, 0)
 		if err != nil {
-			fmt.Println(err.Error())
 			return err
 		}
 		for _, entry := range entries {
@@ -81,18 +79,15 @@ func (self *Logbook) Entry(timeStr string) error {
 		var date time.Time
 		date, err = time.Parse(DATE_FORMAT, timeStr)
 		if err != nil {
-			fmt.Println(err.Error())
 			return err
 		}
 
 		var entry *Entry
 		entry, err = SearchEntryWithDate(self.db, &date)
 		if err != nil {
-			fmt.Println(err.Error())
 			return err
 		}
 
-		stdin.Close()
 		entry.Print(stdin)
 	}
 

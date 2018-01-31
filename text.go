@@ -1,8 +1,8 @@
 package main
 
 import (
-	"os"
 	"io/ioutil"
+	"os"
 
 	"errors"
 
@@ -19,14 +19,9 @@ type Text struct {
 func editSub() (string, error) {
 	var err error
 
-	err = os.Remove(TEXT_TMPORARY_FILE_PATH)
-	if err != nil {
-		// already removed.
-		err = nil
-	}
+	os.Remove(TEXT_TMPORARY_FILE_PATH)
 
-	var entryEditor *editor.Editor
-	entryEditor = editor.NewEditor("")
+	entryEditor := editor.NewEditor("")
 	entryEditor.Launch(TEXT_TMPORARY_FILE_PATH)
 
 	var textBytes []byte

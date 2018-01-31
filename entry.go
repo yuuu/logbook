@@ -23,7 +23,7 @@ const SELECT_ENTRY_QUERY_WITH_ID = `
 SELECT text, date from entry where id = %d
 `
 const SELECT_ENTRY_QUERY_WITH_DATE = `
-SELECT text, date from entry where date = '%s'
+SELECT text, date from entry where date = "%s"
 `
 
 const SELECT_MOST_RECENT_ENTRY_QUERY = `
@@ -82,7 +82,7 @@ func createSearchResultEntry(rows *sql.Rows) ([]*Entry, error) {
 		entries = append(entries, &entry)
 	}
 	if len(entries) == 0 {
-		return nil, errors.New("rows.Next() == false")
+		return nil, errors.New("Entry is none.")
 	}
 
 	return entries, nil
@@ -154,8 +154,9 @@ func (self *Entry) Delete() error {
 }
 
 func (self *Entry) Print(writer io.Writer) {
-	fmt.Fprintln(writer, "================================")
-	fmt.Fprintln(writer, ("DATE: " + self.date.Format(DATE_FORMAT)))
+	fmt.Fprintln(writer, "\x1b[36mEntry: \x1b[0m")
+	fmt.Fprintln(writer, "\x1b[32mDATE: "+self.date.Format(DATE_FORMAT)+"\x1b[0m")
+	fmt.Fprintln(writer, "")
 	fmt.Fprintln(writer, self.text.Text())
 	fmt.Fprintln(writer, "")
 }
