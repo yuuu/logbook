@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -43,9 +42,16 @@ func (self *Logbook) Keep(timeStr string, workpath string) error {
 		return err
 	}
 
-	var date time.Time
-	date = time.Now()
-	_, err = CreateEntry(self.db, text, &date)
+	var date *time.Time
+	date, err = timeParse(timeStr)
+	if err != nil {
+		return err
+	}
+	if date == nil {
+		nowDate := time.Now()
+		date = &nowDate
+	}
+	_, err = CreateEntry(self.db, text, date)
 	if err != nil {
 		return err
 	}
@@ -61,11 +67,16 @@ func (self *Logbook) Entry(timeStr string) error {
 	cmd.Stdout = os.Stdout
 	stdin, err = cmd.StdinPipe()
 	if err != nil {
-		fmt.Println(err.Error())
 		return err
 	}
 
-	if timeStr == "" {
+	var date *time.Time
+	date, err = timeParse(timeStr)
+	if err != nil {
+		return err
+	}
+
+	if date == nil {
 		var entries []*Entry
 		entries, err = SearchMostRecentEntry(self.db, 100, 0)
 		if err != nil {
@@ -74,16 +85,9 @@ func (self *Logbook) Entry(timeStr string) error {
 		for _, entry := range entries {
 			entry.Print(stdin)
 		}
-
 	} else {
-		var date time.Time
-		date, err = time.Parse(DATE_FORMAT, timeStr)
-		if err != nil {
-			return err
-		}
-
 		var entry *Entry
-		entry, err = SearchEntryWithDate(self.db, &date)
+		entry, err = SearchEntryWithDate(self.db, date)
 		if err != nil {
 			return err
 		}
@@ -99,4 +103,17 @@ func (self *Logbook) Entry(timeStr string) error {
 
 func (self *Logbook) Close() {
 	defer self.db.Close()
+}
+
+func timeParse(timeStr string) (*time.Time, error) {
+	var err error
+	if timeStr == "" {
+		return nil, nil
+	}
+	var date time.Time
+	date, err = time.Parse(DATE_FORMAT, timeStr)
+	if err != nil {
+		return nil, err
+	}
+	return &date, nil
 }

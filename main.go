@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
-	"time"
 
 	"github.com/google/subcommands"
 )
@@ -26,7 +25,7 @@ func (*keepCmd) Usage() string {
 `
 }
 func (p *keepCmd) SetFlags(f *flag.FlagSet) {
-	f.StringVar(&p.date, "date", time.Now().Format(DATE_FORMAT), "date of entry")
+	f.StringVar(&p.date, "date", "", "date of entry")
 }
 func (p *keepCmd) Execute(_ context.Context, f *flag.FlagSet, argv ...interface{}) subcommands.ExitStatus {
 	var lgbk = (argv[0]).(*Logbook)
