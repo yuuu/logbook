@@ -27,7 +27,7 @@ SELECT text, date from entry where date = "%s"
 `
 
 const SELECT_MOST_RECENT_ENTRY_QUERY = `
-SELECT text, date from entry ORDER BY id DESC LIMIT %d OFFSET %d
+SELECT text, date from entry ORDER BY date DESC LIMIT %d OFFSET %d
 `
 
 const DATE_FORMAT = "2006-01-02"
