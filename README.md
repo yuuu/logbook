@@ -14,7 +14,7 @@ $ go install
 
 ## Usage
 
-### Keep a dialy
+### Keep a diary
 
 ```sh
 $ logbook keep
